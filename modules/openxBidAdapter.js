@@ -74,6 +74,10 @@ export const spec = {
   }
 };
 
+function isMultiFormatRequest (bidRequest) {
+  return utils.deepAccess(bidRequest, 'mediaTypes.video') && utils.deepAccess(bidRequest, 'mediaTypes.banner');
+}
+
 function isVideoRequest(bidRequest) {
   return utils.deepAccess(bidRequest, 'mediaTypes.video') || bidRequest.mediaType === VIDEO;
 }
@@ -182,7 +186,10 @@ function formatCustomParms(customKey, customParams) {
 function partitionByVideoBids(bidRequests) {
   return bidRequests.reduce(function (acc, bid) {
     // Fallback to banner ads if nothing specified
-    if (isVideoRequest(bid)) {
+    if (isMultiFormatRequest(bid)) {
+      acc[0].push(bid);
+      acc[1].push(bid);
+    } else if (isVideoRequest(bid)) {
       acc[0].push(bid);
     } else {
       acc[1].push(bid);
